@@ -1,0 +1,80 @@
+:root {
+  color-scheme: light dark;
+  font: 14px/1.4 system-ui, sans-serif;
+  color: light-dark(#202124, #e8eaed);
+  background: light-dark(#fff, #202124);
+}
+
+body {
+  width: 284px;
+  margin: 0;
+  padding: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 16px;
+}
+
+#status {
+  color: light-dark(#555b65, #bdc1c6);
+  margin: 2px 0 0;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 44px minmax(76px, auto) 44px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 14px 0 8px;
+  padding-top: 10px;
+  border-top: 1px solid light-dark(#d9dee6, #51555b);
+}
+
+output {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  padding-inline: 4px;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+button {
+  min-height: 44px;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  color: inherit;
+  background: light-dark(#f1f3f6, #303134);
+  border: 1px solid light-dark(#d9dee6, #51555b);
+  border-radius: 8px;
+}
+
+button[aria-pressed="true"] {
+  background: light-dark(#d3e3fd, #33588c);
+  border-color: currentColor;
+}
+
+button:disabled {
+  opacity: 0.45;
+}
+
+#reset {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.stepper button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}

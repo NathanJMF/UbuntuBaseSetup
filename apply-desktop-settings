@@ -10,7 +10,11 @@ import os
 from gi.repository import Gio, GLib
 
 shell = Gio.Settings.new("org.gnome.shell")
-extensions = ("dash-to-panel@jderose9.github.com", "arcmenu@arcmenu.com")
+extensions = (
+    "dash-to-panel@jderose9.github.com", "arcmenu@arcmenu.com",
+    "tiling-assistant@ubuntu.com", "keyboard-monitor-snap@local",
+    "instant-area-screenshot@todomagichere",
+)
 dock = "ubuntu-dock@ubuntu.com"
 
 enabled = [uuid for uuid in shell.get_strv("enabled-extensions") if uuid != dock]
@@ -42,7 +46,22 @@ preferences = {
     "org.gnome.desktop.peripherals.touchpad": {
         "two-finger-scrolling-enabled": ("b", True),
     },
+    "org.gnome.shell.extensions.tiling-assistant": {
+        "enable-tiling-popup": ("b", False),
+        "tile-left-half": ("as", ["<Super>KP_4"]),
+        "tile-right-half": ("as", ["<Super>KP_6"]),
+        "tile-top-half": ("as", ["<Super>KP_8"]),
+        "tile-bottom-half": ("as", ["<Super>KP_2"]),
+        "tile-maximize": ("as", ["<Super>KP_5"]),
+    },
+    "org.gnome.desktop.wm.keybindings": {
+        "move-to-monitor-left": ("as", ["<Super><Shift>Left"]),
+        "move-to-monitor-right": ("as", ["<Super><Shift>Right"]),
+        "move-to-monitor-up": ("as", ["<Super><Shift>Up"]),
+        "move-to-monitor-down": ("as", ["<Super><Shift>Down"]),
+    },
     "org.gnome.mutter": {
+        "edge-tiling": ("b", False),
         "dynamic-workspaces": ("b", False),
     },
     "org.gnome.desktop.wm.preferences": {
@@ -86,6 +105,22 @@ for name in (
         if key.startswith(("switch-to-workspace", "move-to-workspace")):
             if not settings.set_strv(key, []):
                 raise SystemExit(f"Could not clear {name} {key}.")
+
+media_keys = Gio.Settings.new("org.gnome.settings-daemon.plugins.media-keys")
+path = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/resources/"
+shortcut = Gio.Settings.new_with_path(
+    "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding", path
+)
+for key, value in {
+    "name": "Resource Monitor",
+    "binding": "<Control><Shift>Escape",
+    "command": "/usr/bin/gtk-launch net.nokyan.Resources",
+}.items():
+    if not shortcut.set_string(key, value):
+        raise SystemExit(f"Could not set the Resource Monitor shortcut {key}.")
+bindings = media_keys.get_strv("custom-keybindings")
+if path not in bindings and not media_keys.set_strv("custom-keybindings", [*bindings, path]):
+    raise SystemExit("Could not register the Resource Monitor shortcut.")
 
 Gio.Settings.sync()
 PY

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+extension="$HOME/snap/chromium/common/video-playback-speed"
+if [ -r "$extension/manifest.json" ]; then
+    set -- "--load-extension=$extension" "$@"
+fi
+exec /snap/bin/chromium "$@"

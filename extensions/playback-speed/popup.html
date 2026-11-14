@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Playback Speed</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Playback speed</h1>
+    <p id="status" role="status">Applies across tabs</p>
+    <div class="stepper" role="group" aria-label="Adjust playback speed">
+      <button type="button" data-step="-0.25" aria-label="Decrease speed by 0.25×">−</button>
+      <output id="speed" aria-label="Global playback speed" aria-live="polite">—</output>
+      <button type="button" data-step="0.25" aria-label="Increase speed by 0.25×">+</button>
+    </div>
+    <div class="presets" role="group" aria-label="Speed presets">
+      <button type="button" data-rate="0.25" aria-pressed="false">0.25×</button>
+      <button type="button" data-rate="0.5" aria-pressed="false">0.5×</button>
+      <button type="button" data-rate="0.75" aria-pressed="false">0.75×</button>
+      <button type="button" data-rate="2" aria-pressed="false">2×</button>
+      <button type="button" data-rate="3" aria-pressed="false">3×</button>
+      <button type="button" data-rate="4" aria-pressed="false">4×</button>
+    </div>
+    <button type="button" id="reset" aria-label="Reset to 1× speed">Reset</button>
+  </main>
+</body>
+</html>

@@ -38,11 +38,14 @@ if [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
 fi
 
 set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0 \
-    xdg-user-dirs yaru-theme-gtk yaru-theme-icon
+    xdg-user-dirs yaru-theme-gtk yaru-theme-icon gnome-shell-ubuntu-extensions \
+    snapd curl patch build-essential libgtk-3-bin meson ninja-build pkg-config gettext desktop-file-utils \
+    libxml2-utils libgtk-4-dev libadwaita-1-dev libglib2.0-dev cargo rustc \
+    iproute2 dmidecode
 install_nix=false
 if ! command -v nix >/dev/null 2>&1; then
     install_nix=true
-    set -- "$@" nix-bin nix-setup-systemd
+    set -- "$@" nix-bin nix-setup-systemd bash-static
 fi
 sudo apt-get update
 sudo apt-get install -y "$@"
@@ -54,5 +57,7 @@ generation=$(mktemp -d)
 trap 'rm -rf -- "$generation"' EXIT
 nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-file --impure \
     --out-link "$generation/result" "path:$PWD#homeConfigurations.desktop.activationPackage"
+/bin/sh ./install-resources
+/bin/sh ./install-chromium-playback
 UBUNTU_DESKTOP_AUTO_LOCK="$lock_screen" "$generation/result/activate"
-printf '%s\n' 'Sign out and back in to load the bottom panel and Super-key search.'
+printf '%s\n' 'Sign out and back in to load the GNOME extensions. Launch Chromium from the taskbar or app menu.'

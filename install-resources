@@ -1,0 +1,53 @@
+#!/bin/sh
+set -eu
+
+revision=b99edbf8c5151ab04fe26862e8496f112c181d88
+hash=65572c43d833d1833e5667bae7d3536143c81ea032a2a5408d13e92b2f19f4a4
+data_home=${XDG_DATA_HOME:-"$HOME/.local/share"}
+patch_file=$(dirname "$0")/resources.patch
+patch_hash=$(sha256sum "$patch_file" | cut -c1-16)
+prefix="$data_home/ubuntu-desktop-setup/resources-$patch_hash"
+
+if [ ! -x "$prefix/bin/resources" ]; then
+    build=$(mktemp -d)
+    trap 'rm -rf -- "$build"' EXIT
+    if [ -n "${RESOURCES_SOURCE_ARCHIVE:-}" ]; then
+        cp -- "$RESOURCES_SOURCE_ARCHIVE" "$build/resources.tar.gz"
+    else
+        curl -fsSL --retry 3 "https://codeload.github.com/nokyan/resources/tar.gz/$revision" -o "$build/resources.tar.gz"
+    fi
+    printf '%s  %s\n' "$hash" "$build/resources.tar.gz" | sha256sum -c -
+    tar -xzf "$build/resources.tar.gz" -C "$build" --strip-components=1
+    patch --batch -d "$build" -p1 < "$patch_file"
+    cp "$build/data/icons/net.nokyan.Resources.Devel.svg" "$build/data/icons/net.nokyan.Resources.svg"
+    sed -i "/^cargo_options = /a cargo_options += ['--locked']" "$build/src/meson.build"
+    meson setup "$build/build" "$build" --prefix "$prefix" -Dprofile=default
+    meson compile -C "$build/build"
+    DESTDIR="$build/staged" meson install --no-rebuild -C "$build/build"
+    glib-compile-schemas "$build/staged$prefix/share/glib-2.0/schemas"
+    mkdir -p -- "$(dirname "$prefix")"
+    mv -T -- "$build/staged$prefix" "$prefix"
+fi
+
+/usr/bin/python3 - "$prefix" "$data_home" <<'PY'
+import pathlib
+import sys
+
+prefix, data = map(pathlib.Path, sys.argv[1:])
+desktop = data / "applications" / "net.nokyan.Resources.desktop"
+desktop.parent.mkdir(parents=True, exist_ok=True)
+
+def quote(value):
+    special = '\\"$' + chr(96)
+    return '"' + ''.join(('\\' if char in special else '') + char for char in value) + '"'
+
+desktop.write_text(
+    "[Desktop Entry]\nType=Application\nName=Resources\n"
+    "Comment=Monitor system resources and processes\n"
+    "Exec=/usr/bin/env "
+    + quote(f"GSETTINGS_SCHEMA_DIR={prefix}/share/glib-2.0/schemas")
+    + " " + quote(str(prefix / "bin/resources"))
+    + "\nIcon=" + str(prefix / "share/icons/hicolor/scalable/apps/net.nokyan.Resources.svg")
+    + "\nCategories=System;Monitor;\nStartupNotify=true\n"
+)
+PY

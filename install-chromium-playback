@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+
+data_home=${XDG_DATA_HOME:-"$HOME/.local/share"}
+profile_shared="$HOME/snap/chromium/common"
+extension="$profile_shared/video-playback-speed"
+base=$(dirname "$0")
+launcher="$data_home/ubuntu-desktop-setup/chromium-with-playback"
+
+if ! snap list chromium >/dev/null 2>&1; then
+    sudo snap install chromium
+fi
+
+mkdir -p -- "$extension" "$(dirname "$launcher")" "$data_home/applications"
+cp -R -- "$base/extensions/playback-speed/." "$extension/"
+install -m 755 "$base/chromium-with-playback" "$launcher"
+/usr/bin/python3 - "$launcher" "$data_home/applications/chromium_chromium.desktop" <<'PY'
+from pathlib import Path
+import sys
+
+launcher, destination = sys.argv[1:]
+# Retain the Snap launcher ID, icon, MIME types, and desktop actions.
+source = Path("/var/lib/snapd/desktop/applications/chromium_chromium.desktop").read_text()
+special = '\\"$' + chr(96)
+quoted = '"' + ''.join(('\\' if char in special else '') + char for char in launcher) + '"'
+prefix = "Exec=/snap/bin/chromium"
+if not any(line.split()[:1] == [prefix] for line in source.splitlines()):
+    raise SystemExit("Chromium's Snap launcher did not have the expected Exec field.")
+Path(destination).write_text(source.replace(prefix, "Exec=" + quoted))
+PY
