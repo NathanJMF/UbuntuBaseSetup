@@ -20,6 +20,8 @@ The clock uses 24-hour time and shows seconds and the weekday. The mouse uses fl
 
 The screen blanks after 15 minutes of inactivity. Automatic locking and idle suspend are disabled by default. To lock the screen when it blanks, run `./setup --lock-after-15-minutes`. Running `./setup` without the flag restores the default.
 
+Ubuntu uses one workspace with workspace-switching and window-moving shortcuts cleared. The appearance uses Yaru Olive Dark and a green accent. In Files, right-click an empty area and choose **New Document → New File**. Restart, Log Out, and Power Off skip the standard GNOME confirmation countdown.
+
 ## Remaining components
 
-Window snapping, the custom Resources launcher, fresh Chromium with the playback-speed extension, and the remaining desktop preferences are planned for later setup stages. The planned source for the custom keyboard snapping extension is [UbuntuWindowSnapping](https://github.com/NathanJMF/UbuntuWindowSnapping).
+Window snapping, the custom Resources launcher, fresh Chromium with the playback-speed extension, and area screenshots are planned for later setup stages. The planned source for the custom keyboard snapping extension is [UbuntuWindowSnapping](https://github.com/NathanJMF/UbuntuWindowSnapping).

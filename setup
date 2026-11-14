@@ -37,7 +37,8 @@ if [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
     . "$HOME/.nix-profile/etc/profile.d/nix.sh"
 fi
 
-set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0
+set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0 \
+    xdg-user-dirs yaru-theme-gtk yaru-theme-icon
 install_nix=false
 if ! command -v nix >/dev/null 2>&1; then
     install_nix=true

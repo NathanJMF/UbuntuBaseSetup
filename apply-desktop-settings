@@ -28,6 +28,10 @@ preferences = {
         "favorite-apps": ("as", ["org.gnome.Nautilus.desktop", "chromium_chromium.desktop"]),
     },
     "org.gnome.desktop.interface": {
+        "color-scheme": ("s", "prefer-dark"),
+        "gtk-theme": ("s", "Yaru-olive-dark"),
+        "icon-theme": ("s", "Yaru-olive-dark"),
+        "accent-color": ("s", "green"),
         "clock-format": ("s", "24h"),
         "clock-show-seconds": ("b", True),
         "clock-show-weekday": ("b", True),
@@ -37,6 +41,15 @@ preferences = {
     },
     "org.gnome.desktop.peripherals.touchpad": {
         "two-finger-scrolling-enabled": ("b", True),
+    },
+    "org.gnome.mutter": {
+        "dynamic-workspaces": ("b", False),
+    },
+    "org.gnome.desktop.wm.preferences": {
+        "num-workspaces": ("i", 1),
+    },
+    "org.gnome.SessionManager": {
+        "logout-prompt": ("b", False),
     },
     "org.gnome.desktop.session": {
         "idle-delay": ("u", 900),
@@ -59,5 +72,31 @@ for schema, values in preferences.items():
         if not settings.set_value(key, GLib.Variant(kind, value)):
             raise SystemExit(f"Could not set {schema} {key}.")
 
+schemas = Gio.SettingsSchemaSource.get_default()
+for name in (
+    "org.gnome.desktop.wm.keybindings",
+    "org.gnome.mutter.keybindings",
+    "org.gnome.shell.keybindings",
+):
+    schema = schemas.lookup(name, True)
+    if schema is None:
+        continue
+    settings = Gio.Settings.new_full(schema, None, None)
+    for key in schema.list_keys():
+        if key.startswith(("switch-to-workspace", "move-to-workspace")):
+            if not settings.set_strv(key, []):
+                raise SystemExit(f"Could not clear {name} {key}.")
+
 Gio.Settings.sync()
 PY
+
+templates=$(/usr/bin/xdg-user-dir TEMPLATES)
+if [ -z "$templates" ] || [ "${templates%/}" = "${HOME%/}" ]; then
+    templates="$HOME/Templates"
+    /usr/bin/xdg-user-dirs-update --set TEMPLATES "$templates"
+fi
+mkdir -p -- "$templates"
+# Keep an existing template, even if another process creates it first.
+if [ ! -e "$templates/New File" ] && [ ! -L "$templates/New File" ]; then
+    (set -C; : > "$templates/New File")
+fi
