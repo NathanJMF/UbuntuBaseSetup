@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")"
+if [ "$(id -u)" -eq 0 ] || [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+    echo "Run ./setup as your desktop user from a terminal in GNOME." >&2
+    exit 1
+fi
+case "$(gnome-shell --version 2>/dev/null)" in
+    "GNOME Shell 50."*) ;;
+    *) echo "This profile targets GNOME Shell 50 on Ubuntu Desktop." >&2; exit 1 ;;
+esac
+. /etc/os-release
+if [ "$ID" != ubuntu ]; then
+    echo "This setup targets Ubuntu Desktop." >&2
+    exit 1
+fi
+
+if [ -r /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+if [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
+
+set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0
+install_nix=false
+if ! command -v nix >/dev/null 2>&1; then
+    install_nix=true
+    set -- "$@" nix-bin nix-setup-systemd
+fi
+sudo apt-get update
+sudo apt-get install -y "$@"
+if "$install_nix"; then
+    sudo systemctl enable --now nix-daemon.socket
+fi
+
+generation=$(mktemp -d)
+trap 'rm -rf -- "$generation"' EXIT
+nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-file --impure \
+    --out-link "$generation/result" "path:$PWD#homeConfigurations.desktop.activationPackage"
+"$generation/result/activate"
+printf '%s\n' 'Sign out and back in to load the bottom panel and Super-key search.'

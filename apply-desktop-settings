@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+/usr/bin/dconf load /org/gnome/shell/extensions/dash-to-panel/ < "$1"
+/usr/bin/dconf load /org/gnome/shell/extensions/arcmenu/ < "$2"
+
+/usr/bin/python3 - <<'PY'
+from gi.repository import Gio
+
+shell = Gio.Settings.new("org.gnome.shell")
+extensions = ("dash-to-panel@jderose9.github.com", "arcmenu@arcmenu.com")
+dock = "ubuntu-dock@ubuntu.com"
+
+enabled = [uuid for uuid in shell.get_strv("enabled-extensions") if uuid != dock]
+disabled = [uuid for uuid in shell.get_strv("disabled-extensions") if uuid not in extensions]
+enabled.extend(uuid for uuid in extensions if uuid not in enabled)
+if dock not in disabled:
+    disabled.append(dock)
+
+if not shell.set_strv("disabled-extensions", disabled):
+    raise SystemExit("Could not set disabled GNOME extensions.")
+if not shell.set_strv("enabled-extensions", enabled):
+    raise SystemExit("Could not set enabled GNOME extensions.")
+Gio.Settings.sync()
+PY
