@@ -6,7 +6,7 @@ On a clean Ubuntu Desktop installation with GNOME Shell 50, open a terminal in a
 ./setup
 ```
 
-The command installs system dependencies through APT, bootstraps Nix if needed, builds the locked Home Manager configuration, and configures the desktop. Package installation may prompt for sudo. The first run downloads dependencies and compiles Resources. Sign out and back in to load the GNOME extensions.
+The command installs system dependencies through APT, bootstraps Nix if needed, builds the locked Home Manager configuration, and configures the desktop. Package installation may prompt for sudo. When using Ubuntu’s Nix package, setup adds the desktop user to the `nix-users` group for daemon access. The first run downloads dependencies and compiles Resources. Sign out and back in to load the GNOME extensions.
 
 If Home Manager reports an existing extension directory at a managed path, move it to a backup before retrying. Test on a fresh Ubuntu installation or VM to start with a clean Chromium profile.
 

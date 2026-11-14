@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+generation=$(mktemp -d)
+trap 'rm -rf -- "$generation"' EXIT
+nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-file --impure \
+    --out-link "$generation/result" "path:$PWD#homeConfigurations.desktop.activationPackage"
+/bin/sh ./install-resources
+/bin/sh ./install-chromium-playback
+"$generation/result/activate"
+printf '%s\n' 'Sign out and back in to load the GNOME extensions. Launch Chromium from the taskbar or app menu.'

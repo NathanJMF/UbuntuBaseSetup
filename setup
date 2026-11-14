@@ -42,22 +42,23 @@ set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0 \
     snapd curl patch build-essential libgtk-3-bin meson ninja-build pkg-config gettext desktop-file-utils \
     libxml2-utils libgtk-4-dev libadwaita-1-dev libglib2.0-dev cargo rustc \
     iproute2 dmidecode
-install_nix=false
-if ! command -v nix >/dev/null 2>&1; then
-    install_nix=true
+ubuntu_nix=false
+if ! command -v nix >/dev/null 2>&1 || [ "$(readlink -f "$(command -v nix)")" = /usr/bin/nix ]; then
+    ubuntu_nix=true
     set -- "$@" nix-bin nix-setup-systemd bash-static
 fi
 sudo apt-get update
 sudo apt-get install -y "$@"
-if "$install_nix"; then
+export UBUNTU_DESKTOP_AUTO_LOCK="$lock_screen"
+if "$ubuntu_nix"; then
     sudo systemctl enable --now nix-daemon.socket
+    export NIX_REMOTE=daemon
+    account=$(id -un)
+    if ! id -nG "$account" | tr ' ' '\n' | grep -qx nix-users; then
+        sudo usermod -aG nix-users "$account"
+    fi
+    if ! id -nG | tr ' ' '\n' | grep -qx nix-users; then
+        exec sg nix-users -c 'exec /bin/sh ./activate-setup'
+    fi
 fi
-
-generation=$(mktemp -d)
-trap 'rm -rf -- "$generation"' EXIT
-nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-file --impure \
-    --out-link "$generation/result" "path:$PWD#homeConfigurations.desktop.activationPackage"
-/bin/sh ./install-resources
-/bin/sh ./install-chromium-playback
-UBUNTU_DESKTOP_AUTO_LOCK="$lock_screen" "$generation/result/activate"
-printf '%s\n' 'Sign out and back in to load the GNOME extensions. Launch Chromium from the taskbar or app menu.'
+exec /bin/sh ./activate-setup
