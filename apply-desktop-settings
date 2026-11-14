@@ -5,7 +5,9 @@ set -eu
 /usr/bin/dconf load /org/gnome/shell/extensions/arcmenu/ < "$2"
 
 /usr/bin/python3 - <<'PY'
-from gi.repository import Gio
+import os
+
+from gi.repository import Gio, GLib
 
 shell = Gio.Settings.new("org.gnome.shell")
 extensions = ("dash-to-panel@jderose9.github.com", "arcmenu@arcmenu.com")
@@ -21,5 +23,41 @@ if not shell.set_strv("disabled-extensions", disabled):
     raise SystemExit("Could not set disabled GNOME extensions.")
 if not shell.set_strv("enabled-extensions", enabled):
     raise SystemExit("Could not set enabled GNOME extensions.")
+preferences = {
+    "org.gnome.shell": {
+        "favorite-apps": ("as", ["org.gnome.Nautilus.desktop", "chromium_chromium.desktop"]),
+    },
+    "org.gnome.desktop.interface": {
+        "clock-format": ("s", "24h"),
+        "clock-show-seconds": ("b", True),
+        "clock-show-weekday": ("b", True),
+    },
+    "org.gnome.desktop.peripherals.mouse": {
+        "accel-profile": ("s", "flat"),
+    },
+    "org.gnome.desktop.peripherals.touchpad": {
+        "two-finger-scrolling-enabled": ("b", True),
+    },
+    "org.gnome.desktop.session": {
+        "idle-delay": ("u", 900),
+    },
+    "org.gnome.desktop.screensaver": {
+        "lock-enabled": ("b", os.environ.get("UBUNTU_DESKTOP_AUTO_LOCK") == "true"),
+        "lock-delay": ("u", 0),
+        "ubuntu-lock-on-suspend": ("b", False),
+    },
+    "org.gnome.settings-daemon.plugins.power": {
+        "sleep-inactive-ac-type": ("s", "nothing"),
+        "sleep-inactive-battery-type": ("s", "nothing"),
+        "sleep-inactive-ac-timeout": ("i", 0),
+        "sleep-inactive-battery-timeout": ("i", 0),
+    },
+}
+for schema, values in preferences.items():
+    settings = Gio.Settings.new(schema)
+    for key, (kind, value) in values.items():
+        if not settings.set_value(key, GLib.Variant(kind, value)):
+            raise SystemExit(f"Could not set {schema} {key}.")
+
 Gio.Settings.sync()
 PY

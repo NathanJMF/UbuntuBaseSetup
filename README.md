@@ -14,6 +14,12 @@ Dash to Panel 74 provides a full-width 40 px bottom bar with a centred clock and
 
 ArcMenu 70.0 opens a centred 650 px search field on the primary display when either Super key is pressed. Both extension archives are fetched from GNOME Extensions and checked against pinned SHA-256 hashes. Nixpkgs and Home Manager are pinned in `flake.lock`.
 
+## Desktop preferences
+
+The clock uses 24-hour time and shows seconds and the weekday. The mouse uses flat acceleration, and the touchpad uses two-finger scrolling. The taskbar pins Files followed by Chromium. The Chromium pin appears when the Chromium Snap is installed.
+
+The screen blanks after 15 minutes of inactivity. Automatic locking and idle suspend are disabled by default. To lock the screen when it blanks, run `./setup --lock-after-15-minutes`. Running `./setup` without the flag restores the default.
+
 ## Remaining components
 
 Window snapping, the custom Resources launcher, fresh Chromium with the playback-speed extension, and the remaining desktop preferences are planned for later setup stages. The planned source for the custom keyboard snapping extension is [UbuntuWindowSnapping](https://github.com/NathanJMF/UbuntuWindowSnapping).
