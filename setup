@@ -51,7 +51,10 @@ sudo apt-get update
 sudo apt-get install -y "$@"
 export UBUNTU_DESKTOP_AUTO_LOCK="$lock_screen"
 if "$ubuntu_nix"; then
-    sudo systemctl enable --now nix-daemon.socket
+    if ! systemctl is-active --quiet nix-daemon.service &&
+        ! systemctl is-active --quiet nix-daemon.socket; then
+        sudo systemctl enable --now nix-daemon.service
+    fi
     export NIX_REMOTE=daemon
     account=$(id -un)
     if ! id -nG "$account" | tr ' ' '\n' | grep -qx nix-users; then
