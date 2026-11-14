@@ -1,0 +1,43 @@
+--- a/appIcons.js
++++ b/appIcons.js
+@@ -2320,9 +2320,5 @@
+-    let lockTaskbarMenuItem = this._appendMenuItem(
+-      SETTINGS.get_boolean('taskbar-locked')
+-        ? _('Unlock taskbar')
+-        : _('Lock taskbar'),
+-    )
+-    lockTaskbarMenuItem.connect('activate', () => {
+-      SETTINGS.set_boolean(
+-        'taskbar-locked',
+-        !SETTINGS.get_boolean('taskbar-locked'),
++    if (this.sourceActor != Main.layoutManager.dummyCursor) {
++      let lockTaskbarMenuItem = this._appendMenuItem(
++        SETTINGS.get_boolean('taskbar-locked')
++          ? _('Unlock taskbar')
++          : _('Lock taskbar'),
+@@ -2330 +2326,6 @@
+-    })
++      lockTaskbarMenuItem.connect('activate', () => {
++        SETTINGS.set_boolean(
++          'taskbar-locked',
++          !SETTINGS.get_boolean('taskbar-locked'),
++        )
++      })
+@@ -2332,4 +2333,4 @@
+-    this._appendItem({
+-      title: _('Gnome Settings'),
+-      cmd: ['gnome-control-center'],
+-    })
++      this._appendItem({
++        title: _('Gnome Settings'),
++        cmd: ['gnome-control-center'],
++      })
+@@ -2337,5 +2338,3 @@
+-    let settingsMenuItem = this._appendMenuItem(_('Dash to Panel Settings'))
+-    settingsMenuItem.connect('activate', () => DTP_EXTENSION.openPreferences())
+-
+-    if (this.sourceActor == Main.layoutManager.dummyCursor) {
+-      this._appendSeparator()
++      let settingsMenuItem = this._appendMenuItem(_('Dash to Panel Settings'))
++      settingsMenuItem.connect('activate', () => DTP_EXTENSION.openPreferences())
++    } else {

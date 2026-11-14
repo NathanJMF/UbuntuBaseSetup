@@ -1,0 +1,18 @@
+[/]
+arcmenu-hotkey=['Super_L', 'Super_R']
+arcmenu-hotkey-overlay-key-enabled=true
+default-menu-view-runner='Default'
+hotkey-open-primary-monitor=true
+icon-size-apps=-1
+icon-size-buttons=-1
+icon-size-categories=-1
+icon-size-misc=-1
+icon-size-shortcuts=-1
+menu-button-appearance='None'
+menu-layout='runner'
+multi-monitor=false
+runner-menu-height-static=false
+runner-menu-width=650
+runner-position='Centered'
+runner-search-display-style='List'
+search-entry-border-radius=(true, 25)
