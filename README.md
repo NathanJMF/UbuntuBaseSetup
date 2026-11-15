@@ -32,6 +32,8 @@ The screen blanks after 15 minutes. Automatic locking and idle suspend are disab
 
 ## Clean VM test
 
+Validated on an Ubuntu 26.04.1 VM with GNOME Shell 50.1. The install completed, all five GNOME extensions were active after a new login, Resources launched from its desktop entry, and Chromium loaded the bundled extension in a fresh profile. Repeat runs applied both idle-lock modes and kept one Resource Monitor shortcut.
+
 1. Install Ubuntu Desktop with GNOME Shell 50 and take a snapshot after the first login.
 2. Run `./setup`, sign out, and sign back in.
 3. Verify the taskbar and search, keyboard and mouse snapping, Print Screen capture, and the Files template.
