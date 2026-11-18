@@ -1,0 +1,35 @@
+#!/bin/sh
+set -eu
+
+if ! snap list keepassxc >/dev/null 2>&1; then
+    sudo snap install keepassxc
+fi
+if ! snap list pycharm-community >/dev/null 2>&1; then
+    sudo snap install pycharm-community --classic
+fi
+
+if [ "$(dpkg --print-architecture)" = amd64 ] &&
+    [ "$(dpkg-query -W -f='${db:Status-Status}' chatgpt 2>/dev/null || true)" != installed ]; then
+    if [ ! -e /etc/apt/sources.list.d/chatgpt.sources ]; then
+        sudo install -m 0644 packaging/chatgpt-archive-keyring.gpg /usr/share/keyrings/chatgpt-archive-keyring.gpg
+        sudo install -m 0644 packaging/chatgpt.sources /etc/apt/sources.list.d/chatgpt.sources
+    fi
+    sudo apt-get -o Dir::Etc::sourcelist=sources.list.d/chatgpt.sources \
+        -o Dir::Etc::sourceparts=- update
+    sudo apt-get install -y chatgpt
+fi
+
+keeper_app=${XDG_DATA_HOME:-"$HOME/.local/share"}/keeper/app/run-tray
+if [ ! -x "$keeper_app" ]; then
+    checkout=$(mktemp -d)
+    trap 'rm -rf -- "$checkout"' EXIT
+    revision=1a8c98bba67aaf1fb072b52ae1ec338de756ca7f
+    git -C "$checkout" init --quiet
+    git -C "$checkout" remote add origin https://github.com/NathanJMF/KeePassXCAgentAccess.git
+    git -C "$checkout" fetch --quiet --depth 1 origin "$revision"
+    git -C "$checkout" checkout --quiet -b main FETCH_HEAD
+    git -C "$checkout" config branch.main.remote origin
+    git -C "$checkout" config branch.main.merge refs/heads/main
+    test "$(git -C "$checkout" rev-parse HEAD)" = "$revision"
+    "$checkout/install" --no-launch
+fi

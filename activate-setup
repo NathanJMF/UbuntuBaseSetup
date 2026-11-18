@@ -7,5 +7,6 @@ nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-fil
     --out-link "$generation/result" "path:$PWD#homeConfigurations.desktop.activationPackage"
 /bin/sh ./install-resources
 /bin/sh ./install-chromium-playback
+/bin/sh ./install-desktop-apps
 "$generation/result/activate"
 printf '%s\n' 'Sign out and back in to load the GNOME extensions. Launch Chromium from the taskbar or app menu.'
