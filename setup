@@ -39,7 +39,7 @@ fi
 
 set -- dconf-cli python3-gi libgnome-menu-3-0 gir1.2-gmenu-3.0 \
     xdg-user-dirs yaru-theme-gtk yaru-theme-icon gnome-shell-ubuntu-extensions \
-    snapd curl patch build-essential libgtk-3-bin meson ninja-build pkg-config gettext desktop-file-utils \
+    snapd curl build-essential libgtk-3-bin meson ninja-build pkg-config gettext desktop-file-utils \
     libxml2-utils libgtk-4-dev libadwaita-1-dev libglib2.0-dev cargo rustc \
     iproute2 dmidecode git
 ubuntu_nix=false

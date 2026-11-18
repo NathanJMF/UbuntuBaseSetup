@@ -20,14 +20,14 @@ If Home Manager reports an existing extension directory at a managed path, move 
 | Workspace, theme, and input | Ubuntu GNOME and Yaru | One workspace, Yaru Olive Dark with a green accent, a 24-hour clock with seconds and weekday, flat mouse acceleration, and two-finger touchpad scrolling. |
 | New File | Nautilus templates | Right-click empty space and choose **New Document → New File**. |
 | Area screenshots | Instant Area Screenshot revision `ab4a72ff77c31b56258e6588c3b375240bf37f4f` | Press Print Screen, drag an area, and release to capture it. |
-| Resource Monitor | Resources 1.10.2 and the included patch | Custom hardware views, textured process tables, and grayscale icon. Open from the taskbar menu or press Ctrl+Shift+Esc. |
+| Resource Monitor | [UbuntuResourceMonitor](https://github.com/NathanJMF/UbuntuResourceMonitor) | Custom hardware views, textured process tables, and grayscale icon. Open from the taskbar menu or press Ctrl+Shift+Esc. |
 | Chromium | Ubuntu Chromium Snap and bundled Video Playback Speed revision `93c7e7e47e6d8c5a2e2a2a669de2997982a0458a` | Files and Chromium are pinned in that order. Launch Chromium from the taskbar or app menu to load the bundled extension. |
 | Password management | KeePassXC Snap and [KeePassXCAgentAccess](https://github.com/NathanJMF/KeePassXCAgentAccess) | Installs both KeePassXC and Keeper. Keeper installs its agent skill and launcher. |
 | ChatGPT Desktop | OpenAI’s signed APT repository | Installs the official `chatgpt` Debian package on amd64. |
 | PyCharm Community | [JetBrains’ Community Snap](https://snapcraft.io/pycharm-community) | Installs `pycharm-community` from its stable channel. |
 | Power menu | GNOME Session Manager | Restart, Log Out, and Power Off skip the standard confirmation countdown. |
 
-Nixpkgs and Home Manager are pinned in `flake.lock`. The GNOME extension archives and Resources source archive use pinned hashes. Ubuntu system packages and the Chromium Snap follow the Ubuntu and Snap stable update channels.
+Nixpkgs and Home Manager are pinned in `flake.lock`. The GNOME extension archives use pinned hashes. Each setup run checks the head of UbuntuResourceMonitor’s `main` branch and reuses the installed build when that commit is already present. Ubuntu system packages and the Chromium Snap follow the Ubuntu and Snap stable update channels.
 
 ## Keeper
 
