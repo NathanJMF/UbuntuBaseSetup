@@ -14,8 +14,7 @@ if [ "$(dpkg --print-architecture)" = amd64 ] &&
         sudo install -m 0644 packaging/chatgpt-archive-keyring.gpg /usr/share/keyrings/chatgpt-archive-keyring.gpg
         sudo install -m 0644 packaging/chatgpt.sources /etc/apt/sources.list.d/chatgpt.sources
     fi
-    sudo apt-get -o Dir::Etc::sourcelist=sources.list.d/chatgpt.sources \
-        -o Dir::Etc::sourceparts=- update
+    sudo apt-get update
     sudo apt-get install -y chatgpt
 fi
 
