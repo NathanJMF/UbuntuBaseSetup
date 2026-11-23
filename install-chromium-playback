@@ -26,5 +26,10 @@ quoted = '"' + ''.join(('\\' if char in special else '') + char for char in laun
 prefix = "Exec=/snap/bin/chromium"
 if not any(line.split()[:1] == [prefix] for line in source.splitlines()):
     raise SystemExit("Chromium's Snap launcher did not have the expected Exec field.")
-Path(destination).write_text(source.replace(prefix, "Exec=" + quoted))
+desktop = Path(destination)
+if desktop.is_file() and "Icon=nightfall-chromium" in desktop.read_text().splitlines():
+    original_icon = next((line for line in source.splitlines() if line.startswith("Icon=")), None)
+    if original_icon:
+        source = source.replace(original_icon, "Icon=nightfall-chromium", 1)
+desktop.write_text(source.replace(prefix, "Exec=" + quoted))
 PY

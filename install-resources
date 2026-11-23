@@ -39,13 +39,17 @@ def quote(value):
     special = '\\"$' + chr(96)
     return '"' + ''.join(('\\' if char in special else '') + char for char in value) + '"'
 
+icon = str(prefix / "share/icons/hicolor/scalable/apps/net.nokyan.Resources.svg")
+if desktop.is_file() and "Icon=nightfall-resources" in desktop.read_text().splitlines():
+    icon = "nightfall-resources"
+
 desktop.write_text(
     "[Desktop Entry]\nType=Application\nName=Resources\n"
     "Comment=Monitor system resources and processes\n"
     "Exec=/usr/bin/env "
     + quote(f"GSETTINGS_SCHEMA_DIR={prefix}/share/glib-2.0/schemas")
     + " " + quote(str(prefix / "bin/resources"))
-    + "\nIcon=" + str(prefix / "share/icons/hicolor/scalable/apps/net.nokyan.Resources.svg")
+    + "\nIcon=" + icon
     + "\nCategories=System;Monitor;\nStartupNotify=true\n"
 )
 PY
