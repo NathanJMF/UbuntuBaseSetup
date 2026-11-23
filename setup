@@ -46,6 +46,9 @@ ubuntu_nix=false
 if ! command -v nix >/dev/null 2>&1 || [ "$(readlink -f "$(command -v nix)")" = /usr/bin/nix ]; then
     ubuntu_nix=true
     set -- "$@" nix-bin nix-setup-systemd bash-static
+    if ! command -v sg >/dev/null 2>&1; then
+        set -- "$@" util-linux-extra
+    fi
 fi
 sudo apt-get update
 sudo apt-get install -y "$@"
