@@ -1,0 +1,12 @@
+[Unit]
+Description=Request APT updates at graphical sign-in
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl --system --no-ask-password --no-block start ubuntu-base-apt.service
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical-session.target

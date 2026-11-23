@@ -24,6 +24,7 @@ If Home Manager reports an existing extension directory at a managed path, move 
 | Chromium | Ubuntu Chromium Snap and bundled Video Playback Speed revision `93c7e7e47e6d8c5a2e2a2a669de2997982a0458a` | Files and Chromium are pinned in that order. Launch Chromium from the taskbar or app menu to load the bundled extension. |
 | Password management | KeePassXC Snap and KeePassXCAgentAccess (see the [installer](../install-desktop-apps)) | Installs both KeePassXC and Keeper. Keeper installs its agent skill and launcher. |
 | ChatGPT Desktop | OpenAI’s signed APT repository | Installs the official `chatgpt` Debian package on amd64. |
+| Additional desktop apps | Bitwarden Snap and checksum-verified vendor installers | Installs Bitwarden, PIA and Antigravity desktop. Removes Firefox while retaining user data. |
 | PyCharm Community | [JetBrains’ Community Snap](https://snapcraft.io/pycharm-community) | Installs `pycharm-community` from its stable channel. |
 | Power menu | GNOME Session Manager | Restart, Log Out, and Power Off skip the standard confirmation countdown. |
 

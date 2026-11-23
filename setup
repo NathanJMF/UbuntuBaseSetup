@@ -2,18 +2,16 @@
 set -eu
 
 lock_screen=false
-case "$#" in
-    0) ;;
-    1)
-        case "$1" in
-            --lock-after-15-minutes) lock_screen=true ;;
-            --help)
-                printf '%s\n' 'Usage: ./setup [--lock-after-15-minutes]'
-                exit 0 ;;
-            *) echo "Unknown option: $1" >&2; exit 2 ;;
-        esac ;;
-    *) echo "Usage: ./setup [--lock-after-15-minutes]" >&2; exit 2 ;;
-esac
+nightfall=false
+for option in "$@"; do
+    case "$option" in
+        --lock-after-15-minutes) lock_screen=true ;;
+        --nightfall) nightfall=true ;;
+        --help) echo 'Usage: ./setup [--lock-after-15-minutes] [--nightfall]'; exit 0 ;;
+        *) echo "Unknown option: $option" >&2; exit 2 ;;
+    esac
+done
+export UBUNTU_DESKTOP_NIGHTFALL="$nightfall"
 
 cd "$(dirname "$0")"
 if [ "$(id -u)" -eq 0 ] || [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then

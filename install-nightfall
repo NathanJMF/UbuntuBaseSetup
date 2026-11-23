@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+repo=https://github.com/NathanJMF/UbuntuNightFall.git
+requested=${UBUNTU_NIGHTFALL_REVISION:-}
+if [ -n "$requested" ]; then
+    printf '%s\n' "$requested" | grep -Eq '^[0-9a-f]{40}$' || { echo 'Invalid Nightfall revision.' >&2; exit 2; }
+else
+    requested=refs/heads/main
+fi
+tmp=$(mktemp -d)
+trap 'rm -rf -- "$tmp"' EXIT
+git init --quiet "$tmp/theme"
+git -C "$tmp/theme" fetch --quiet --depth 1 "$repo" "$requested"
+git -C "$tmp/theme" checkout --quiet --detach FETCH_HEAD
+"$tmp/theme/install"
+state=${XDG_STATE_HOME:-"$HOME/.local/state"}/ubuntu-desktop-setup
+mkdir -p "$state"
+git -C "$tmp/theme" rev-parse HEAD > "$tmp/revision"
+install -m0644 "$tmp/revision" "$state/nightfall-revision"

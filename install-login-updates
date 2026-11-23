@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/packaging/login-apt"
+uid=$(id -u)
+[ "$uid" != 0 ] || { echo 'Run setup as your desktop user.' >&2; exit 1; }
+rule=$(mktemp)
+trap 'rm -f -- "$rule"' EXIT
+python3 -c 'import json, pwd, os
+from pathlib import Path
+name = pwd.getpwuid(os.getuid()).pw_name
+print(Path("start-only.rules.in").read_text().replace("@ACCOUNT@", json.dumps(name)), end="")' > "$rule"
+sudo install -m 0644 ubuntu-base-apt.service /etc/systemd/system/ubuntu-base-apt.service
+sudo install -m 0644 "$rule" "/etc/polkit-1/rules.d/49-ubuntu-base-apt-$uid.rules"
+sudo systemctl daemon-reload
+
+user_units=${XDG_CONFIG_HOME:-"$HOME/.config"}/systemd/user
+install -Dm0644 ubuntu-base-apt-trigger.service "$user_units/ubuntu-base-apt-trigger.service"
+systemctl --user daemon-reload
+systemctl --user enable ubuntu-base-apt-trigger.service
+# Retire the earlier per-user sign-in trigger when its command matches.
+account=$(id -un)
+legacy="$account-login-apt-trigger.service"
+if [ -f "$user_units/$legacy" ] &&
+    grep -Fxq "ExecStart=/usr/bin/systemctl --system --no-ask-password --no-block start $account-login-apt.service" "$user_units/$legacy"; then
+    systemctl --user disable "$legacy"
+fi

@@ -2,8 +2,12 @@
 set -eu
 
 repository=https://github.com/NathanJMF/UbuntuResourceMonitor.git
-remote_ref=$(git ls-remote --exit-code "$repository" refs/heads/main)
-revision=$(printf '%s\n' "$remote_ref" | cut -f1)
+revision=${UBUNTU_RESOURCES_REVISION:-}
+if [ -z "$revision" ]; then
+    remote_ref=$(git ls-remote --exit-code "$repository" refs/heads/main)
+    revision=$(printf '%s\n' "$remote_ref" | cut -f1)
+fi
+printf '%s\n' "$revision" | grep -Eq '^[0-9a-f]{40}$' || exit 2
 data_home=${XDG_DATA_HOME:-"$HOME/.local/share"}
 prefix="$data_home/ubuntu-desktop-setup/resources-$revision"
 
@@ -45,3 +49,7 @@ desktop.write_text(
     + "\nCategories=System;Monitor;\nStartupNotify=true\n"
 )
 PY
+
+state=${XDG_STATE_HOME:-"$HOME/.local/state"}/ubuntu-desktop-setup
+mkdir -p "$state"
+printf '%s\n' "$revision" > "$state/resources-revision"

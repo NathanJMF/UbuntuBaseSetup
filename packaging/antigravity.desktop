@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Antigravity
+Comment=Google Antigravity desktop app
+Exec=/opt/ubuntu-base-antigravity/antigravity %U
+Icon=antigravity
+Terminal=false
+Categories=Development;

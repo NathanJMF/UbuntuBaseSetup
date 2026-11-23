@@ -26,7 +26,8 @@ installer=
 if [ ! -x "$keeper_dir/app/run-tray" ]; then
     checkout=$(mktemp -d)
     trap 'rm -rf -- "$checkout"' EXIT
-    revision=1a8c98bba67aaf1fb072b52ae1ec338de756ca7f
+    revision=${UBUNTU_KEEPER_REVISION:-1a8c98bba67aaf1fb072b52ae1ec338de756ca7f}
+    printf '%s\n' "$revision" | grep -Eq '^[0-9a-f]{40}$' || exit 2
     git -C "$checkout" init --quiet
     git -C "$checkout" remote add origin https://github.com/NathanJMF/KeePassXCAgentAccess.git
     git -C "$checkout" fetch --quiet --depth 1 origin "$revision"
@@ -64,4 +65,12 @@ print(any(server["name"] == "keeper" for server in json.load(sys.stdin)))')
     fi
 else
     printf 'Keeper MCP is ready. Use %s as the stdio command in your agent client.\n' "$keeper_connect"
+fi
+
+state=${XDG_STATE_HOME:-"$HOME/.local/state"}/ubuntu-desktop-setup
+mkdir -p "$state"
+if revision=$(git -C "$keeper_dir/update-source" rev-parse HEAD); then
+    printf '%s\n' "$revision" > "$state/keeper-revision"
+else
+    rm -f -- "$state/keeper-revision"
 fi

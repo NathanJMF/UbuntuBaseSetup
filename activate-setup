@@ -8,5 +8,8 @@ nix --extra-experimental-features 'nix-command flakes' build --no-write-lock-fil
 /bin/sh ./install-resources
 /bin/sh ./install-chromium-playback
 /bin/sh ./install-desktop-apps
+/bin/sh ./install-extra-apps
 "$generation/result/activate"
+/bin/sh ./install-login-updates
+if [ "${UBUNTU_DESKTOP_NIGHTFALL:-false}" = true ]; then /bin/sh ./install-nightfall; fi
 printf '%s\n' 'Sign out and back in to load the GNOME extensions. Launch Chromium from the taskbar or app menu.'

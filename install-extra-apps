@@ -1,0 +1,62 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")"
+case "$(dpkg --print-architecture)" in
+    amd64)
+        platform=x64
+        pia_file=pia-linux-3.8-08539.run
+        pia_hash=a3cf2e2b50d29693ba58f0ae232e52c5785f0244a56e6ed005b684b18767399f
+        google_hash=478c68f86c9ef61a502185a39e9ceec66b1276a6a53b191a19b0d9ce869836db ;;
+    arm64)
+        platform=arm
+        pia_file=pia-linux-arm64-3.8-08539.run
+        pia_hash=612d278eaadd123f9fed7f016924e7d25a32a33273d2dbbb690faaee14a6ebb3
+        google_hash=91f31ce50c795e0571e7922511119ff3e7afc2ee4f640a97d69dbad2063c1866 ;;
+    *) platform= ;;
+esac
+
+if ! snap list bitwarden >/dev/null 2>&1; then sudo snap install bitwarden; fi
+tmp=$(mktemp -d)
+trap 'rm -rf -- "$tmp"' EXIT
+download() {
+    curl --proto '=https' --proto-redir '=https' -fLsS --retry 3 "$1" -o "$tmp/download"
+    printf '%s  %s\n' "$2" "$tmp/download" | sha256sum --check --status
+}
+
+if [ -n "$platform" ] && [ ! -x /opt/piavpn/bin/pia-client ]; then
+    download "https://installers.privateinternetaccess.com/download/$pia_file" "$pia_hash"
+    sh "$tmp/download"
+fi
+
+if [ -n "$platform" ] && [ ! -x "$HOME/.local/opt/google-antigravity/antigravity" ]; then
+    binary=/opt/ubuntu-base-antigravity/antigravity
+    if [ ! -x "$binary" ]; then
+        download "https://storage.googleapis.com/antigravity-public/antigravity-hub/2.34.0-5887025308631040/linux-$platform/Antigravity.tar.gz" "$google_hash"
+        # Extract as an ordinary user. Install in a root-owned path for Ubuntu's userns profile.
+        mkdir "$tmp/app"
+        tar xzf "$tmp/download" --strip-components=1 --no-same-owner -C "$tmp/app"
+        test -x "$tmp/app/antigravity"
+        stage=$(sudo mktemp -d /opt/.ubuntu-base-antigravity.XXXXXXXX)
+        if ! sudo cp -R --no-preserve=ownership "$tmp/app/." "$stage/" ||
+            ! sudo chmod 0755 "$stage" || ! sudo mv -T "$stage" /opt/ubuntu-base-antigravity; then
+            sudo rm -rf -- "$stage"
+            exit 1
+        fi
+    fi
+    sudo install -m 0644 packaging/antigravity.apparmor /etc/apparmor.d/ubuntu-base-antigravity
+    sudo apparmor_parser -r /etc/apparmor.d/ubuntu-base-antigravity
+    sudo install -Dm0644 packaging/antigravity.png /usr/local/share/icons/hicolor/512x512/apps/antigravity.png
+    sudo install -Dm0644 packaging/antigravity.desktop /usr/local/share/applications/antigravity.desktop
+fi
+
+# Keep Firefox user data and let snapd take its normal removal snapshot.
+if [ "$(dpkg-query -W -f='${db:Status-Status}' firefox 2>/dev/null || true)" = installed ]; then
+    LC_ALL=C apt-get -s remove firefox > "$tmp/removal"
+    if awk '$1 == "Remv" && $2 != "firefox" { extra=1 } END { exit !extra }' "$tmp/removal"; then
+        echo 'Removing Firefox would remove additional packages. Review apt-get -s remove firefox.' >&2
+        exit 1
+    fi
+    sudo apt-get remove -y firefox
+fi
+if snap list firefox >/dev/null 2>&1; then sudo snap remove firefox; fi
