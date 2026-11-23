@@ -19,8 +19,11 @@ if [ "$(dpkg --print-architecture)" = amd64 ] &&
     sudo apt-get install -y chatgpt
 fi
 
-keeper_app=${XDG_DATA_HOME:-"$HOME/.local/share"}/keeper/app/run-tray
-if [ ! -x "$keeper_app" ]; then
+keeper_dir=${XDG_DATA_HOME:-"$HOME/.local/share"}/keeper
+keeper_connect=$keeper_dir/app/keeper-connect
+socket_unit=keeper-connect-$(id -u).socket
+
+if [ ! -x "$keeper_dir/app/run-tray" ]; then
     checkout=$(mktemp -d)
     trap 'rm -rf -- "$checkout"' EXIT
     revision=1a8c98bba67aaf1fb072b52ae1ec338de756ca7f
@@ -31,5 +34,34 @@ if [ ! -x "$keeper_app" ]; then
     git -C "$checkout" config branch.main.remote origin
     git -C "$checkout" config branch.main.merge refs/heads/main
     test "$(git -C "$checkout" rev-parse HEAD)" = "$revision"
-    "$checkout/install" --no-launch
+    "$checkout/install" --connect-agent --no-launch
+elif [ ! -x "$keeper_connect" ] || ! systemctl is-active --quiet "$socket_unit"; then
+    # Use the installed release for a desktop-only installation or a socket repair.
+    installer=$keeper_dir/update-source/install
+    if [ ! -x "$installer" ]; then
+        echo 'Keeper is installed without its update checkout. Run ./install --connect-agent from its matching trusted release, then retry setup.' >&2
+        exit 1
+    fi
+    "$installer" --connect-agent --no-launch
+fi
+
+if [ ! -x "$keeper_connect" ] || ! systemctl is-active --quiet "$socket_unit"; then
+    echo 'Keeper setup did not bring up its local MCP connection.' >&2
+    exit 1
+fi
+
+codex=/usr/lib/chatgpt/resources/codex
+if [ ! -x "$codex" ]; then
+    codex=$(command -v codex || true)
+fi
+if [ -n "$codex" ]; then
+    # Query successfully before adding anything. Keep custom and disabled entries.
+    servers=$("$codex" mcp list --json)
+    registered=$(printf '%s' "$servers" | python3 -c 'import json, sys
+print(any(server["name"] == "keeper" for server in json.load(sys.stdin)))')
+    if [ "$registered" = False ]; then
+        "$codex" mcp add keeper -- "$keeper_connect"
+    fi
+else
+    printf 'Keeper MCP is ready. Use %s as the stdio command in your agent client.\n' "$keeper_connect"
 fi
