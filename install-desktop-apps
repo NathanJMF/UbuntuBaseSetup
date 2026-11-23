@@ -23,6 +23,7 @@ keeper_dir=${XDG_DATA_HOME:-"$HOME/.local/share"}/keeper
 keeper_connect=$keeper_dir/app/keeper-connect
 socket_unit=keeper-connect-$(id -u).socket
 
+installer=
 if [ ! -x "$keeper_dir/app/run-tray" ]; then
     checkout=$(mktemp -d)
     trap 'rm -rf -- "$checkout"' EXIT
@@ -34,7 +35,7 @@ if [ ! -x "$keeper_dir/app/run-tray" ]; then
     git -C "$checkout" config branch.main.remote origin
     git -C "$checkout" config branch.main.merge refs/heads/main
     test "$(git -C "$checkout" rev-parse HEAD)" = "$revision"
-    "$checkout/install" --connect-agent --no-launch
+    installer=$checkout/install
 elif [ ! -x "$keeper_connect" ] || ! systemctl is-active --quiet "$socket_unit"; then
     # Use the installed release for a desktop-only installation or a socket repair.
     installer=$keeper_dir/update-source/install
@@ -42,8 +43,8 @@ elif [ ! -x "$keeper_connect" ] || ! systemctl is-active --quiet "$socket_unit";
         echo 'Keeper is installed without its update checkout. Run ./install --connect-agent from its matching trusted release, then retry setup.' >&2
         exit 1
     fi
-    "$installer" --connect-agent --no-launch
 fi
+python3 packaging/keeper-launcher.py "$keeper_dir" "$installer"
 
 if [ ! -x "$keeper_connect" ] || ! systemctl is-active --quiet "$socket_unit"; then
     echo 'Keeper setup did not bring up its local MCP connection.' >&2

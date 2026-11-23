@@ -33,7 +33,7 @@ Nixpkgs and Home Manager are pinned in `flake.lock`. The GNOME extension archive
 
 Setup installs Keeper, its skill, and its local MCP runner with `--connect-agent --no-launch`. Approve Keeper’s one-time administrator prompt to create the dedicated runner and per-user socket. Setup registers the stdio command with Codex when its CLI is installed. It preserves existing `keeper` registrations. Restart an open Codex client and start a new chat to load a new registration. Other clients can use the command shown in **Keeper → Settings → Connect an Agent**.
 
-On a desktop-only Keeper installation, setup uses Keeper’s existing update checkout to add the runner. If Keeper reports a customized launcher, back it up and move it aside before retrying. Keeper recreates its standard launcher. For an existing legacy runner or separately managed broker, follow Keeper’s migration instructions before switching. Vault selection, resuming agent access, and credential approvals stay in Keeper.
+On a desktop-only Keeper installation, setup uses Keeper’s existing update checkout to add the runner. An existing Nightfall icon is preserved automatically when it is the only change to Keeper’s recorded launcher. Keeper retains its usual checks for other launcher edits. For an existing legacy runner or separately managed broker, follow Keeper’s migration instructions before switching. Vault selection, resuming agent access, and credential approvals stay in Keeper.
 
 ## Idle screen lock
 
