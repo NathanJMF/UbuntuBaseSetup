@@ -26,7 +26,7 @@ installer=
 if [ ! -x "$keeper_dir/app/run-tray" ]; then
     checkout=$(mktemp -d)
     trap 'rm -rf -- "$checkout"' EXIT
-    revision=${UBUNTU_KEEPER_REVISION:-3968234855ecb21aa63dacf925778e38a4a657ad}
+    revision=${UBUNTU_KEEPER_REVISION:-d16abc5c7aa85e600ae9e7fda59153c8d03ebde4}
     printf '%s\n' "$revision" | grep -Eq '^[0-9a-f]{40}$' || exit 2
     git -C "$checkout" init --quiet
     git -C "$checkout" remote add origin https://github.com/NathanJMF/KeePassXCAgentAccess.git
